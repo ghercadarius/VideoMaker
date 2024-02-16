@@ -7,7 +7,6 @@ from sydney import SydneyClient
 import gtts
 from pydub import AudioSegment
 import numpy
-import apikey
 import openai
 import requests
 from PIL import Image
@@ -19,7 +18,7 @@ from io import BytesIO
 
 #here you need to put your OpenAI api key
 client = OpenAI(
-    api_key = apikey.apiKey().get(),
+    api_key = os.environ['OPENAI_API_KEY'],
 )
 
 def query_sydney(prompt):
