@@ -13,6 +13,8 @@ import requests
 from PIL import Image
 import json
 import convert_json
+import base64
+from io import BytesIO
 
 
 #here you need to put your OpenAI api key
@@ -72,18 +74,17 @@ title = "What is the capital of France?"
 #IMAGE GENERATION
 
 def generate_image(text):
-    for i in range(1):
-        response = openai.Image.create(
-            prompt = text,
-            n = 1,
-            size = "1920x1080",
-            response_format="b64_json",
-        )
-        json_file = f"{text[:10]}--{response['created']}.json"
-        with open(json_file, mode="w", encoding="utf-8") as file:
-            json.dump(response, file, ensure_ascii=False, indent=2)
-        print(f"Image saved to {json_file}")
-        convert_json.convert(json_file)
+        response = client.images.generate(prompt = text, model="dall-e-2", n = 1, response_format="b64_json", size="1024x1024", user = "user123")
+        json_file = "image_json.json"
+        image_data_list = []
+        for image in response.data:
+            image_data_list.append(image.model_dump()["b64_json"])
+        image_objects = []
+        for i, data in enumerate(image_data_list):
+            image_objects.append(Image.open(BytesIO(base64.b64decode(data))))
+            image_objects[i].save(f"image{i}.png")
+            print("saved image")
+            print("saved image")
 
 generate_image(title)
 
