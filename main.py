@@ -1,5 +1,8 @@
 import os
 import asyncio
+
+import pydub
+from pydub.silence import detect_silence, split_on_silence, detect_nonsilent
 from sydney import SydneyClient
 import gtts
 from playsound import playsound
@@ -7,6 +10,7 @@ import soundfile
 from pydub import AudioSegment
 import numpy
 import pyrubberband as pyrb
+import librosa
 
 
 def query_sydney(prompt):
@@ -46,28 +50,13 @@ As you can see, Paris has not always been the undisputed capital of France. Howe
 
 #AUDIO GENERATION
 
-# sound1 = gtts.gTTS(text, slow = False)
-# sound1.save("sound1.mp3")
-sound = AudioSegment.from_mp3("sound1.mp3")
-sound.export("sound1.wav", format="wav")
+print("read file sound1.wav")
+audio = AudioSegment.from_file("sound1.wav", format="wav")
+print("changing playback speed")
+audio = audio.speedup(playback_speed=1.25)
+print("changed playback speed, exporting")
+audio.export("sound2.wav", format="wav")
+print("exported")
 
-data, samplerate = soundfile.read('sound1.wav')
-
-y_strech = pyrb.time_stretch(data, samplerate, 1.5)
-soundfile.write('sound2.wav', y_strech, samplerate, format='wav')
-
-# Set desired pitch shift (positive value increases pitch)
-# pitch_shift = 5  # Experiment with different values
-#
-# # Apply pitch shift using PyDub
-# shifted_sound = sound.set_frame_rate(int(sound.frame_rate * (2 ** pitch_shift)))
-# shifted_sound.export("new_audio.mp3", format="mp3")
-
-# Alternatively, use soundfile for more precise control
-# shifted_data, shifted_sr = soundfile.read("sound1.mp3")
-# shifted_data = soundfile.pitch(shifted_data, shifted_sr, pitch_shift)
-# shifted_sound = soundfile.write("new_audio.mp3", shifted_data, shifted_sr)
-
-# Play the shifted audio
-# shifted_sound.play()
+#remove the silent parts from audio using pydub
 

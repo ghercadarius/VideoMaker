@@ -10,7 +10,6 @@ $ pip install playsound
 $ pip install pyttsx3
 $ pip install soundfile
 $ pip install pydub
-$ pip install ffmpeg-python
-$ pip install rubberband
+$ pip install librosa
 $ python.exe -m pip install --upgrade pip
 ```
