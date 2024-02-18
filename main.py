@@ -24,6 +24,7 @@ import base64
 from io import BytesIO
 import cv2
 import os
+from ffmpeg import FFmpeg
 
 
 #here you need to put your OpenAI api key
@@ -106,34 +107,34 @@ In this timeless tapestry, Paris weaves together history, passion, and dreams. I
 #             print("saved image")
 
 # images_names = generate_image(title)
-images_names = ["image0.png", "image1.png", "image2.png", "image3.png", "image4.png"]
+# images_names = ["image0.png", "image1.png", "image2.png", "image3.png", "image4.png"]
 
 #modify image sizes
 
-for image in images_names:
-    with Image.open(image) as img:
-        img = img.resize((1080, 1920))
-        img.save(image)
-        print(f"resized image {image} successfully")
+# for image in images_names:
+#     with Image.open(image) as img:
+#         img = img.resize((1080, 1920))
+#         img.save(image)
+#         print(f"resized image {image} successfully")
 
 # VIDEO GENERATION
 
-frame_width, frame_height = 1080, 1920
-fps = 30
-num_frames = fps * 12
-video_title = "video.mp4"
-video_writer = cv2.VideoWriter(video_title, cv2.VideoWriter_fourcc(*'mp4v'), fps, (frame_width, frame_height))
-print(f"made video file {video_title}")
-
-for image in images_names:
-    frame = cv2.imread(image)
-    for x in range(num_frames):
-        video_writer.write(frame)
-    print(f"added image {image} to video for {num_frames} frames")
-    # video_writer.write(frame)
-
-video_writer.release()
-cv2.destroyAllWindows()
+# frame_width, frame_height = 1080, 1920
+# fps = 30
+# num_frames = fps * 12
+# video_title = "video.mp4"
+# video_writer = cv2.VideoWriter(video_title, cv2.VideoWriter_fourcc(*'mp4v'), fps, (frame_width, frame_height))
+# print(f"made video file {video_title}")
+#
+# for image in images_names:
+#     frame = cv2.imread(image)
+#     for x in range(num_frames):
+#         video_writer.write(frame)
+#     print(f"added image {image} to video for {num_frames} frames")
+#     # video_writer.write(frame)
+#
+# video_writer.release()
+# cv2.destroyAllWindows()
 
 # LINK AUDIO SPEECH TO VIDEO
 
@@ -151,31 +152,49 @@ audio.export("background_audio.wav", format="wav")
 print("exported background_audio.wav")
 
 # create the subtitles for the sound2.wav file based on text
-subtitle_duration = 5
-subtitles = TextClip(text, fontsize=24, color="white", bg_color="black").set_duration(subtitle_duration)
+print("opened sound2.wav for subtitles")
+audioSub = open("sound2.wav", "rb")
+transcript = client.audio.transcriptions.create(
+    file=audioSub,
+    model="whisper-1",
+    response_format="srt"
+)
+#write transcript in a srt file
+with open("subtitles.srt", "w") as file:
+    file.write(transcript)
+print("created subtitles")
+audioSub.close()
+# print(transcript)
+
+# load video and audio
 
 video_clip = VideoFileClip("video.mp4")
 audio_clip = AudioFileClip("sound2.wav")
 background_audio = AudioFileClip("background_audio.wav")
-
+#
 volume_factor = 1
 # bigger -> louder, smaller -> quieter
 audio_clip = volumex(audio_clip, volume_factor)
 volume_factor = 0.2
 background_audio = volumex(background_audio, volume_factor)
-print("start composite part")
-video_clip = CompositeVideoClip([video_clip, subtitles.set_position(("center", "bottom"))])
-print("added subtitles")
 final_audio = CompositeAudioClip([audio_clip, background_audio])
 print("added audio")
 final_clip = video_clip.set_audio(final_audio)
 print("set audio")
 final_clip.write_videofile("final_video.mp4", codec="libx264", audio_codec="aac")
 print("exported successfully without subtitles")
+final_clip.close()
 
 # add subtitles to the video
+ffmpeg = (
+    FFmpeg()
+    .input("final_video.mp4")
+    .input("subtitles.srt")
+    .output("final_video_with_subtitles.mp4", vf="subtitles=subtitles.srt")
+)
+ffmpeg.execute()
+print("exported successfully with subtitles")
 
-# add whisper
 
 
 
