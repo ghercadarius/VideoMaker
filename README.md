@@ -11,7 +11,7 @@ $ pip install Pillow
 $ pip install opencv-python
 $ pip install moviepy
 $ pip install pyttsx3
-$ pip install python-ffmpeg
+$ pip install ffmpeg-python
 $ python.exe -m pip install --upgrade pip
 ```
 
