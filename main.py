@@ -19,7 +19,6 @@ import openai
 import requests
 from PIL import Image
 import json
-import convert_json
 import base64
 from io import BytesIO
 import cv2
@@ -36,7 +35,7 @@ def query_sydney(prompt):
     return result
 
 async def get_result(title):
-    prompt = f"Can you write me a text about {title} in about 120 words? Without the sources or anything else, just the text that would be spoken in a presentation about this topic. In English please"
+    prompt = f"Can you write me a text about {title} in 120 words? Without the sources or anything else, just the text that would be spoken in a presentation about this topic. In English please"
     print("entered get_result")
     sydney = SydneyClient()
     #start conversation
@@ -53,7 +52,7 @@ async def get_result(title):
 title = input("Enter the title of the video: ")
 
 text = query_sydney(title)
-text = text[:-1].strip('`')
+text = "".join([i for i in text if i not in ['`', '´', '’', '‘', '“', '”', '–', '—', '.']])
 # text = text.rstrip('`')
 print(text)
 # # AUDIO GENERATION
@@ -73,23 +72,23 @@ print("exported")
 
 #IMAGE GENERATION
 
-def generate_image(text):
-        response = client.images.generate(prompt = text, model="dall-e-2", n = 5, response_format="b64_json", size="1024x1024", user = "user123")
-        json_file = "image_json.json"
-        image_data_list = []
-        result = []
-        for image in response.data:
-            image_data_list.append(image.model_dump()["b64_json"])
-        image_objects = []
-        for i, data in enumerate(image_data_list):
-            image_objects.append(Image.open(BytesIO(base64.b64decode(data))))
-            image_objects[i].save(f"image{i}.png")
-            result.append(f"image{i}.png")
-            print("saved image " + f"image{i}.png")
-        return result
-#
-images_names = generate_image(title)
-# images_names = ["image0.png", "image1.png", "image2.png", "image3.png", "image4.png"]
+# def generate_image(text):
+#         response = client.images.generate(prompt = text, model="dall-e-2", n = 5, response_format="b64_json", size="1024x1024", user = "user123")
+#         json_file = "image_json.json"
+#         image_data_list = []
+#         result = []
+#         for image in response.data:
+#             image_data_list.append(image.model_dump()["b64_json"])
+#         image_objects = []
+#         for i, data in enumerate(image_data_list):
+#             image_objects.append(Image.open(BytesIO(base64.b64decode(data))))
+#             image_objects[i].save(f"image{i}.png")
+#             result.append(f"image{i}.png")
+#             print("saved image " + f"image{i}.png")
+#         return result
+# #
+# images_names = generate_image(title)
+images_names = ["image0.png", "image1.png", "image2.png", "image3.png", "image4.png"]
 #
 # #modify image sizes
 #
