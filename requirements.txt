@@ -1,0 +1,9 @@
+sydney-py
+gTTS
+pydub
+-q openai
+Pillow
+opencv-python
+moviepy
+pyttsx3
+ffmpeg-python
